@@ -985,11 +985,7 @@ INT32 osal_wake_lock_init(P_OSAL_WAKE_LOCK pLock)
 	if (!pLock)
 		return -1;
 
-	#ifdef CONFIG_PM_WAKELOCKS
-	wakeup_source_init(&pLock->wake_lock, pLock->name);
-	#else
-	wake_lock_init(&pLock->wake_lock, WAKE_LOCK_SUSPEND, pLock->name);
-	#endif
+	pLock->wake_lock = wakeup_source_create(pLock->name);
 	return 0;
 }
 
@@ -998,11 +994,7 @@ INT32 osal_wake_lock_deinit(P_OSAL_WAKE_LOCK pLock)
 	if (!pLock)
 		return -1;
 
-	#ifdef CONFIG_PM_WAKELOCKS
-	wakeup_source_trash(&pLock->wake_lock);
-	#else
-	wake_lock_destroy(&pLock->wake_lock);
-	#endif
+	wakeup_source_destroy(pLock->wake_lock);
 	return 0;
 }
 
@@ -1011,11 +1003,7 @@ INT32 osal_wake_lock(P_OSAL_WAKE_LOCK pLock)
 	if (!pLock)
 		return -1;
 
-	#ifdef CONFIG_PM_WAKELOCKS
-	__pm_stay_awake(&pLock->wake_lock);
-	#else
-	wake_lock(&pLock->wake_lock);
-	#endif
+	__pm_stay_awake(pLock->wake_lock);
 
 	return 0;
 }
@@ -1025,11 +1013,7 @@ INT32 osal_wake_unlock(P_OSAL_WAKE_LOCK pLock)
 	if (!pLock)
 		return -1;
 
-	#ifdef CONFIG_PM_WAKELOCKS
-	__pm_relax(&pLock->wake_lock);
-	#else
-	wake_unlock(&pLock->wake_lock);
-	#endif
+	__pm_relax(pLock->wake_lock);
 
 	return 0;
 
@@ -1042,11 +1026,7 @@ INT32 osal_wake_lock_count(P_OSAL_WAKE_LOCK pLock)
 	if (!pLock)
 		return -1;
 
-	#ifdef CONFIG_PM_WAKELOCKS
-	count = pLock->wake_lock.active;
-	#else
-	count = wake_lock_active(&pLock->wake_lock);
-	#endif
+	count = pLock->wake_lock->active;
 	return count;
 }
 
