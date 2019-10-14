@@ -49,7 +49,7 @@
 		wps {
 			label = "wps";
 			linux,code = <KEY_WPS_BUTTON>;
-			gpios = <&pio 102 GPIO_ACTIVE_HIGH>;
+			gpios = <&pio 102 GPIO_ACTIVE_LOW>;
 		};
 	};
 
@@ -126,27 +126,23 @@
 	gmac0: mac@0 {
 		compatible = "mediatek,eth-mac";
 		reg = <0>;
-		phy-mode = "2500base-x";
-
-		fixed-link {
-			speed = <2500>;
-			full-duplex;
-			pause;
-		};
-	};
-
-	gmac1: mac@1 {
-		compatible = "mediatek,eth-mac";
-		reg = <1>;
-		phy-mode = "rgmii";
-
+		phy-mode = "sgmii";
 		fixed-link {
 			speed = <1000>;
 			full-duplex;
 			pause;
 		};
 	};
-
+	gmac1: mac@1 {
+		compatible = "mediatek,eth-mac";
+		reg = <1>;
+		phy-mode = "rgmii";
+		fixed-link {
+			speed = <1000>;
+			full-duplex;
+			pause;
+		};
+	};
 	mdio: mdio-bus {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -155,7 +151,7 @@
 
 &gsw {
 	mediatek,mdio = <&mdio>;
-	mediatek,portmap = "llllw";
+	mediatek,portmap = "wllll";
 	mediatek,mdio_master_pinmux = <0>;
 	reset-gpios = <&pio 54 0>;
 	interrupt-parent = <&pio>;
