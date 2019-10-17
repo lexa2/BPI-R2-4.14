@@ -160,3 +160,5 @@ uImage*
 #added by LeXa2
 /.ptp-sync/
 .ptp-sync-folder
+/SD
+/mod
