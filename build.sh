@@ -107,6 +107,23 @@ function increase_kernel {
         echo $newkernver
 }
 
+function disable_option() {
+	echo "disable $1"
+	if [[ "$1" == "" ]];then echo "option missing ($1)";return;fi
+	#CFG=RTL8367S_GSW;
+	CFG=${1^^};
+	CFG=${CFG//CONFIG_/}
+	#echo "CFG:$CFG"
+	#grep -i 'mt753x\|rtl8367' .config
+	grep $CFG .config
+	if [[ $? -eq 0 ]]; then
+		sed -i 's:CONFIG_'$CFG'=y:# CONFIG_'$CFG' is not set:g' .config
+		grep $CFG .config
+	else
+		echo "option CONFIG_$CFG not found in .config"
+	fi
+}
+
 function update_kernel_source {
         changedfiles=$(git diff --name-only)
         if [[ -z "$changedfiles" ]]; then
@@ -633,6 +650,11 @@ if [ -n "$kernver" ]; then
 				p=arm64
 				echo "Import r64 config"
 				f=mt7622_bpi-r64_defconfig
+				if (( $(echo "$boardversion < $r64newswver" |bc -l) ));then
+					disable=mt753x_gsw
+				else
+					disable=rtl8367s_gsw
+				fi
 			else
 				p=arm
 				if [[ -z "$file" ]];then
@@ -645,6 +667,9 @@ if [ -n "$kernver" ]; then
 			fi
 			if [[ -e "arch/${p}/configs/${f}" ]];then
 				make ${f}
+				if [[ -n "$disable" ]];then
+					disable_option "$disable"
+				fi
 			else
 				echo "file not found"
 			fi
