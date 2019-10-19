@@ -321,7 +321,8 @@ INT32 wmt_plat_init(UINT32 co_clock_type)
 	/* register to cmb_stub */
 	iret = mtk_wcn_cmb_stub_reg(&stub_cb);
 #ifdef CFG_WMT_WAKELOCK_SUPPORT
-	wmtWakeLock = wakeup_source_create("wmtFuncCtrl");
+	if((wmtWakeLock = wakeup_source_create("wmtFuncCtrl")))
+		wakeup_source_add(wmtWakeLock);
 	mutex_init(&gOsSLock);
 #endif
 
@@ -348,6 +349,7 @@ printk(KERN_ALERT "DEBUG: Passed %s %d now calling wmt wakelock deinit\n",__FUNC
 	/*3. wmt wakelock deinit */
 #ifdef CFG_WMT_WAKELOCK_SUPPORT
 printk(KERN_ALERT "DEBUG: Passed %s %d now calling wakeup_source_trash\n",__FUNCTION__,__LINE__);
+	wakeup_source_remove(wmtWakeLock);
 	wakeup_source_destroy(wmtWakeLock);
 printk(KERN_ALERT "DEBUG: Passed %s %d now calling mutex_destroy\n",__FUNCTION__,__LINE__);
 	mutex_destroy(&gOsSLock);

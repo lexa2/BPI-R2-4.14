@@ -985,7 +985,9 @@ INT32 osal_wake_lock_init(P_OSAL_WAKE_LOCK pLock)
 	if (!pLock)
 		return -1;
 
-	pLock->wake_lock = wakeup_source_create(pLock->name);
+	if((pLock->wake_lock = wakeup_source_create(pLock->name)))
+		wakeup_source_add(pLock->wake_lock);
+
 	return 0;
 }
 
@@ -994,6 +996,7 @@ INT32 osal_wake_lock_deinit(P_OSAL_WAKE_LOCK pLock)
 	if (!pLock)
 		return -1;
 
+	wakeup_source_remove(pLock->wake_lock);
 	wakeup_source_destroy(pLock->wake_lock);
 	return 0;
 }
